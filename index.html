@@ -17,10 +17,10 @@
     --ink-soft:     #6b5482;
     --gold:         #c79a5c;
     --white:        #fffbff;
+    --ease:         cubic-bezier(.22,.8,.24,1);
   }
 
   *{ box-sizing:border-box; margin:0; padding:0; }
-
   html{ scroll-behavior:smooth; }
 
   body{
@@ -31,6 +31,8 @@
     position: relative;
   }
 
+  section{ position:relative; }
+
   /* ---------- OVERLAY DI APERTURA: TULIPANO CHE SBOCCIA ---------- */
   .intro-overlay{
     position: fixed;
@@ -40,13 +42,13 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    animation: introOut 0.7s ease forwards 1.9s;
+    animation: introOut 0.7s ease forwards 2.1s;
   }
   .intro-overlay.done{ display: none; }
 
   #tulipStemLine{
-    stroke-dasharray: 90;
-    stroke-dashoffset: 90;
+    stroke-dasharray: 80;
+    stroke-dashoffset: 80;
     animation: drawStem 0.8s ease-out forwards 0.1s;
   }
   #tulipLeaf{
@@ -55,19 +57,21 @@
     transform-origin: 50px 124px;
     animation: leafPop 0.6s ease forwards 0.55s;
   }
+  /* Il gruppo del fiore NON ha più un transform="translate(...)" nell'SVG:
+     i petali sono già disegnati in coordinate assolute, così l'animazione
+     CSS (che altrimenti sovrascriverebbe l'attributo transform dell'SVG)
+     non manda più in conflitto la posizione del fiore. */
   #tulipHead{
     opacity: 0;
-    transform: scale(0.3) translateY(10px);
+    transform: scale(0.25);
     transform-origin: 50px 80px;
-    animation: headBloom 0.75s cubic-bezier(.34,1.56,.64,1) forwards 0.75s;
+    animation: headBloom 0.85s cubic-bezier(.34,1.56,.64,1) forwards 0.75s;
   }
 
   @keyframes drawStem{ to{ stroke-dashoffset: 0; } }
   @keyframes leafPop{ to{ opacity: 1; transform: scale(1); } }
-  @keyframes headBloom{ to{ opacity: 1; transform: scale(1) translateY(0); } }
-  @keyframes introOut{
-    to{ opacity: 0; visibility: hidden; }
-  }
+  @keyframes headBloom{ to{ opacity: 1; transform: scale(1); } }
+  @keyframes introOut{ to{ opacity: 0; visibility: hidden; } }
 
   @media (prefers-reduced-motion: reduce){
     .intro-overlay{ display: none; }
@@ -90,19 +94,55 @@
     animation-iteration-count: infinite, infinite;
   }
   .petal svg{ display:block; width:100%; height:100%; }
-
-  @keyframes fall{
-    from{ transform: translateY(-10vh); }
-    to{ transform: translateY(110vh); }
+  .petal.burst{
+    animation: burstUp 1.6s ease-out forwards;
   }
-  @keyframes sway{
-    0%,100%{ margin-left: 0; }
-    50%{ margin-left: 40px; }
+
+  @keyframes fall{ from{ transform: translateY(-10vh); } to{ transform: translateY(110vh); } }
+  @keyframes sway{ 0%,100%{ margin-left: 0; } 50%{ margin-left: 40px; } }
+  @keyframes burstUp{
+    0%{ transform: translateY(0) scale(0.4); opacity:0; }
+    15%{ opacity:1; }
+    100%{ transform: translateY(-60vh) scale(1); opacity:0; }
   }
 
   @media (prefers-reduced-motion: reduce){
     .petal{ animation: none; display:none; }
     html{ scroll-behavior:auto; }
+  }
+
+  /* ---------- BOTTONI "CONTINUA" ---------- */
+  .btn-continua{
+    display:inline-flex;
+    align-items:center;
+    gap:0.5rem;
+    margin-top: 3rem;
+    padding: 0.75rem 1.6rem;
+    border-radius: 999px;
+    border: 1px solid rgba(124,79,163,0.4);
+    background: rgba(255,255,255,0.55);
+    color: var(--lavender-deep);
+    text-decoration:none;
+    font-family:'Jost';
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor:pointer;
+    transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), background 0.35s var(--ease);
+    box-shadow: 0 8px 22px -12px rgba(59,38,80,0.35);
+  }
+  .btn-continua:hover{
+    transform: translateY(-3px);
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 14px 30px -14px rgba(59,38,80,0.45);
+  }
+  .btn-continua .arrow{ display:inline-block; animation: arrowBob 1.6s ease-in-out infinite; }
+  @keyframes arrowBob{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(4px); } }
+
+  .section-cta{
+    display:flex;
+    justify-content:center;
+    padding-bottom: 4.5rem;
   }
 
   /* ---------- HERO ---------- */
@@ -113,7 +153,6 @@
     align-items:center;
     justify-content:center;
     text-align:center;
-    position: relative;
     padding: 2rem 1.5rem;
     background:
       radial-gradient(ellipse at 50% 15%, rgba(168,115,201,0.30), transparent 60%),
@@ -121,7 +160,6 @@
   }
 
   .eyebrow{
-    font-family:'Jost', sans-serif;
     letter-spacing: 0.45em;
     text-transform: uppercase;
     font-size: 0.7rem;
@@ -144,7 +182,7 @@
     color: transparent;
     opacity: 0;
     transform: translateY(30px);
-    animation: fadeUp 1.1s cubic-bezier(.2,.8,.2,1) forwards 0.5s, shimmer 6s linear infinite 1.6s;
+    animation: fadeUp 1.1s var(--ease) forwards 0.5s, shimmer 6s linear infinite 1.6s;
   }
 
   .hero-sub{
@@ -167,12 +205,7 @@
     opacity: 0;
     animation: fadeUp 1s ease forwards 1.7s;
   }
-  .hero-ornament span{
-    width: 34px;
-    height: 1px;
-    background: var(--lavender);
-    opacity: 0.6;
-  }
+  .hero-ornament span{ width: 34px; height: 1px; background: var(--lavender); opacity: 0.6; }
 
   .hero-name{
     margin-top: 1rem;
@@ -186,6 +219,29 @@
     animation: fadeUp 1s ease forwards 1.95s;
   }
 
+  .hero .btn-continua{
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 2.3s;
+    margin-top: 2.6rem;
+  }
+
+  .scroll-hint{
+    position: absolute;
+    bottom: 1.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 2.6s, bob 2.4s ease-in-out infinite 3s;
+  }
+
+  @keyframes fadeUp{ to{ opacity: 1; transform: translateY(0); } }
+  @keyframes shimmer{ to{ background-position: -200% center; } }
+  @keyframes bob{ 0%,100%{ transform: translate(-50%,0); } 50%{ transform: translate(-50%,8px); } }
+
   /* ---------- FOTO ---------- */
   .foto-wrap{
     min-height: 100svh;
@@ -193,8 +249,7 @@
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    padding: 5rem 1.5rem;
-    position: relative;
+    padding: 5rem 1.5rem 2rem;
     text-align:center;
     perspective: 1000px;
   }
@@ -273,38 +328,73 @@
     max-width: 34ch;
   }
 
-  .scroll-hint{
-    position: absolute;
-    bottom: 2.4rem;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
+  /* ---------- STATS / BATTUTE ---------- */
+  .stats-wrap{
+    padding: 4rem 1.5rem 1rem;
+    text-align:center;
+  }
+  .stats-heading{
+    font-family:'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.5rem, 4vw, 2.1rem);
+    color: var(--ink);
+    margin-bottom: 0.6rem;
+  }
+  .stats-sub{
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
     color: var(--ink-soft);
-    opacity: 0;
-    animation: fadeUp 1s ease forwards 2.1s, bob 2.4s ease-in-out infinite 2.6s;
+    margin-bottom: 3rem;
+    font-size: 1.05rem;
   }
-
-  @keyframes fadeUp{
-    to{ opacity: 1; transform: translateY(0); }
+  .stats-grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+    gap: 1.2rem;
+    max-width: 560px;
+    margin: 0 auto;
   }
-  @keyframes shimmer{
-    to{ background-position: -200% center; }
+  .stat-card{
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(199,154,92,0.3);
+    border-radius: 14px;
+    padding: 1.6rem 1rem;
+    transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
   }
-  @keyframes bob{
-    0%,100%{ transform: translate(-50%,0); }
-    50%{ transform: translate(-50%,8px); }
+  .stat-card:hover{
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px -18px rgba(59,38,80,0.35);
   }
+  .stat-card .emoji{ font-size: 2rem; display:block; margin-bottom: 0.6rem; }
+  .stat-card .value{
+    font-family:'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--lavender-deep);
+    display:block;
+  }
+  .stat-card .label{
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin-top: 0.3rem;
+    display:block;
+  }
+  .stats-grid .stat-card:nth-child(1){ transition-delay: 0s; }
+  .stats-grid .stat-card.reveal{ transition-delay: 0s; }
+  .stats-grid .stat-card:nth-child(2).reveal{ transition-delay: 0.12s; }
+  .stats-grid .stat-card:nth-child(3).reveal{ transition-delay: 0.24s; }
+  .stats-grid .stat-card:nth-child(4).reveal{ transition-delay: 0.36s; }
 
   /* ---------- DIPLOMA SECTION ---------- */
   .diploma{
     min-height: 100svh;
     display:flex;
+    flex-direction:column;
     align-items:center;
     justify-content:center;
-    padding: 5rem 1.5rem;
-    position: relative;
+    padding: 5rem 1.5rem 1rem;
   }
 
   .diploma-card{
@@ -330,9 +420,21 @@
 
   .wreath{
     width: 120px;
-    margin: 0 auto 1.6rem;
+    margin: 0 auto 0.6rem;
     opacity: 0.95;
+    cursor: pointer;
+    transition: transform 0.3s var(--ease), filter 0.3s var(--ease);
   }
+  .wreath:hover{ transform: scale(1.06); filter: drop-shadow(0 6px 14px rgba(124,79,163,0.35)); }
+
+  .cap-egg{
+    display:inline-block;
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+    cursor: pointer;
+    transition: transform 0.3s var(--ease);
+  }
+  .cap-egg:hover{ transform: rotate(-12deg) scale(1.15); }
 
   .conferisce{
     font-family:'Jost';
@@ -360,13 +462,7 @@
     letter-spacing: 0.01em;
   }
 
-  .rigo{
-    width: 70px;
-    height: 1px;
-    background: var(--lavender);
-    margin: 1.8rem auto;
-    opacity: 0.8;
-  }
+  .rigo{ width: 70px; height: 1px; background: var(--lavender); margin: 1.8rem auto; opacity: 0.8; }
 
   .lode{
     font-family:'Cormorant Garamond', serif;
@@ -377,53 +473,171 @@
     margin: 0 auto;
   }
 
-  /* ---------- DEDICA ---------- */
-  .dedica{
-    padding: 4rem 1.5rem 7rem;
-    display:flex;
-    justify-content:center;
-  }
-
-  .dedica-box{
-    max-width: 620px;
-    width: 100%;
-  }
-
-  .dedica-eyebrow{
+  /* ---------- PERCHÉ SONO ORGOGLIOSO ---------- */
+  .perche{
+    padding: 4rem 1.5rem 1rem;
     text-align:center;
+  }
+  .perche-eyebrow{
     letter-spacing: 0.4em;
     text-transform: uppercase;
     font-size: 0.65rem;
     color: var(--lavender-deep);
-    margin-bottom: 2.2rem;
+    margin-bottom: 1rem;
   }
-
-  .dedica-testo{
-    font-family:'Cormorant Garamond', serif;
-    font-size: clamp(1.15rem, 2.6vw, 1.45rem);
-    line-height: 1.9;
-    color: var(--ink);
-    text-align: left;
-  }
-
-  .dedica-testo p{ margin-bottom: 1.3rem; }
-  .dedica-testo p:first-child::first-letter{
+  .perche-title{
     font-family:'Playfair Display', serif;
-    font-size: 3.2rem;
-    float: left;
-    line-height: 0.8;
-    margin: 0.1em 0.08em 0 0;
-    color: var(--gold);
+    font-style: italic;
+    font-size: clamp(1.5rem, 4vw, 2.1rem);
+    margin-bottom: 2.6rem;
   }
-
-  .firma{
-    margin-top: 2.6rem;
-    text-align: right;
+  .perche-box{
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 130px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 1.5rem;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid rgba(168,115,201,0.3);
+  }
+  .perche-box p{
     font-family:'Cormorant Garamond', serif;
     font-style: italic;
-    font-size: 1.2rem;
-    color: var(--lavender-deep);
+    font-size: clamp(1.1rem, 2.6vw, 1.35rem);
+    color: var(--ink);
+    line-height: 1.6;
+    transition: opacity 0.35s ease;
   }
+  .btn-perche{
+    margin-top: 2rem;
+    padding: 0.8rem 1.8rem;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(135deg, var(--lavender-deep), var(--lavender));
+    color: #fff;
+    font-family: 'Jost';
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 12px 26px -14px rgba(59,38,80,0.5);
+    transition: transform 0.3s var(--ease);
+  }
+  .btn-perche:hover{ transform: translateY(-3px) scale(1.02); }
+  .perche-dots{
+    margin-top: 1.2rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--ink-soft);
+    opacity: 0.7;
+  }
+
+  /* ---------- FINALE ---------- */
+  .finale{
+    min-height: 100svh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 5rem 1.5rem 6rem;
+    text-align:center;
+  }
+  .finale-stage{ max-width: 600px; width:100%; }
+
+  .finale-congrats{
+    font-family:'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 5vw, 2.7rem);
+    color: var(--lavender-deep);
+    white-space: pre-line;
+    min-height: 4.5em;
+    line-height: 1.35;
+  }
+  .finale-congrats .cursor{
+    display:inline-block;
+    width: 2px;
+    background: var(--gold);
+    margin-left: 3px;
+    animation: blink 0.9s step-end infinite;
+  }
+  @keyframes blink{ 50%{ opacity: 0; } }
+
+  .chat-box{
+    margin-top: 2.5rem;
+    display:flex;
+    flex-direction:column;
+    text-align:left;
+  }
+  .bubble{
+    max-width: 78%;
+    padding: 0.7rem 1.05rem;
+    border-radius: 18px;
+    margin-bottom: 0.7rem;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: bubbleIn 0.45s var(--ease) forwards;
+  }
+  .bubble.lui{
+    margin-left: auto;
+    background: linear-gradient(135deg, var(--lavender-deep), var(--lavender));
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .bubble.lei{
+    margin-right: auto;
+    background: #fff;
+    color: var(--ink);
+    border: 1px solid rgba(124,79,163,0.22);
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 6px 16px -10px rgba(59,38,80,0.3);
+  }
+  @keyframes bubbleIn{ to{ opacity: 1; transform: translateY(0); } }
+
+  .typing{
+    display:flex;
+    gap: 4px;
+    padding: 0.7rem 1rem;
+    border-radius: 18px;
+    width: fit-content;
+    margin-bottom: 0.7rem;
+  }
+  .typing.lui{ margin-left:auto; background: rgba(124,79,163,0.25); border-bottom-right-radius:4px; }
+  .typing.lei{ margin-right:auto; background: rgba(255,255,255,0.9); border: 1px solid rgba(124,79,163,0.2); border-bottom-left-radius:4px; }
+  .typing span{
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--lavender-deep);
+    animation: typingDot 1.1s infinite ease-in-out;
+  }
+  .typing span:nth-child(2){ animation-delay: 0.15s; }
+  .typing span:nth-child(3){ animation-delay: 0.3s; }
+  @keyframes typingDot{ 0%,60%,100%{ transform: translateY(0); opacity:0.4; } 30%{ transform: translateY(-4px); opacity:1; } }
+
+  .finale-firma{
+    margin-top: 2.4rem;
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--lavender-deep);
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    position: relative;
+  }
+  .finale-firma.show{ opacity: 1; }
+  .finale-firma.show::before{
+    content:'';
+    position:absolute;
+    inset: -30px -60px;
+    background: radial-gradient(ellipse at center, rgba(199,154,92,0.25), transparent 65%);
+    z-index: -1;
+    animation: glowPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes glowPulse{ 0%,100%{ opacity:0.5; transform: scale(1);} 50%{ opacity:1; transform: scale(1.08);} }
 
   footer{
     text-align:center;
@@ -435,20 +649,13 @@
     opacity: 0.55;
   }
 
-  @media (max-width: 480px){
-    .diploma-card{ padding: 2.6rem 1.4rem; }
-  }
-
   /* ---------- REVEAL ALLO SCROLL ---------- */
   .reveal{
     opacity: 0;
     transform: translateY(45px);
-    transition: opacity 0.9s ease, transform 0.9s cubic-bezier(.2,.8,.2,1);
+    transition: opacity 0.9s ease, transform 0.9s var(--ease);
   }
-  .reveal.visible{
-    opacity: 1;
-    transform: translateY(0);
-  }
+  .reveal.visible{ opacity: 1; transform: translateY(0); }
 
   /* ---------- TORNA SU ---------- */
   .back-to-top{
@@ -470,12 +677,36 @@
     transition: opacity 0.35s ease, transform 0.35s ease;
     z-index: 40;
   }
-  .back-to-top.show{
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
+  .back-to-top.show{ opacity: 1; transform: translateY(0); pointer-events: auto; }
   .back-to-top:hover{ filter: brightness(1.08); }
+
+  /* ---------- EASTER EGG TOAST ---------- */
+  .easter-toast{
+    position:fixed;
+    left:50%;
+    bottom:6.5rem;
+    transform:translateX(-50%) translateY(10px);
+    background:rgba(255,255,255,0.95);
+    color:var(--ink);
+    padding:0.75rem 1.3rem;
+    border-radius:999px;
+    box-shadow:0 14px 34px -12px rgba(59,38,80,0.4);
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size:0.95rem;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .4s ease, transform .4s ease;
+    z-index: 60;
+    text-align:center;
+    max-width: 84vw;
+  }
+  .easter-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @media (max-width: 480px){
+    .diploma-card{ padding: 2.6rem 1.4rem; }
+    .stats-grid{ grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  }
 </style>
 </head>
 <body>
@@ -490,17 +721,17 @@
     </defs>
     <path id="tulipStemLine" d="M50,150 L50,76" stroke="#7c4fa3" stroke-width="4" stroke-linecap="round" fill="none"/>
     <path id="tulipLeaf" d="M50,122 C35,117 20,124 14,135 C28,138 42,133 50,126 Z" fill="#a873c9"/>
-    <g id="tulipHead" transform="translate(50,80)">
-      <path d="M0,0 C-10,-9 -13,-27 0,-45 C13,-27 10,-9 0,0 Z" transform="rotate(-26)" fill="#7c4fa3" opacity="0.92"/>
-      <path d="M0,0 C-10,-9 -13,-27 0,-45 C13,-27 10,-9 0,0 Z" transform="rotate(26)" fill="#7c4fa3" opacity="0.92"/>
-      <path d="M0,0 C-11,-10 -14,-30 0,-50 C14,-30 11,-10 0,0 Z" fill="url(#tulipGrad)"/>
+    <g id="tulipHead">
+      <path d="M50,80 C40,71 37,53 50,35 C63,53 60,71 50,80 Z" transform="rotate(-26 50 80)" fill="#7c4fa3" opacity="0.92"/>
+      <path d="M50,80 C40,71 37,53 50,35 C63,53 60,71 50,80 Z" transform="rotate(26 50 80)" fill="#7c4fa3" opacity="0.92"/>
+      <path d="M50,80 C39,70 36,50 50,30 C64,50 61,70 50,80 Z" fill="url(#tulipGrad)"/>
     </g>
   </svg>
 </div>
 
 <div class="petals" id="petals"></div>
 
-<section class="hero">
+<section class="hero" id="hero">
   <div class="eyebrow">Un traguardo, un inizio</div>
   <h1 class="here-we-go">Here We Go</h1>
   <p class="hero-sub">Da oggi il mondo ti chiama in un altro modo.</p>
@@ -510,10 +741,11 @@
     <span></span>
   </div>
   <p class="hero-name">Dott.ssa Rosita Poliseno</p>
+  <a href="#foto" class="btn-continua">Continua <span class="arrow">↓</span></a>
   <div class="scroll-hint">Scorri ↓</div>
 </section>
 
-<section class="foto-wrap">
+<section class="foto-wrap" id="foto">
   <div class="foto-eyebrow">Il giorno più bello</div>
   <div class="foto-cornice reveal" id="fotoCornice">
     <img src="laurea.JPG" alt="Rosita il giorno della laurea" loading="lazy" id="fotoImg">
@@ -523,11 +755,45 @@
     </div>
   </div>
   <p class="foto-caption">Questo sorriso, oggi, vale più di ogni voto in pagella.</p>
+  <div class="section-cta">
+    <a href="#stats" class="btn-continua">Scopri la prossima sorpresa <span class="arrow">↓</span></a>
+  </div>
 </section>
 
-<section class="diploma">
+<section class="stats-wrap" id="stats">
+  <div class="stats-heading">Il bilancio di questi anni</div>
+  <div class="stats-sub">Numeri (quasi) ufficiali della tua carriera universitaria</div>
+  <div class="stats-grid">
+    <div class="stat-card reveal">
+      <span class="emoji">☕</span>
+      <span class="value">Infiniti</span>
+      <span class="label">caffè bevuti</span>
+    </div>
+    <div class="stat-card reveal">
+      <span class="emoji">😴</span>
+      <span class="value">Poche</span>
+      <span class="label">ore di sonno</span>
+    </div>
+    <div class="stat-card reveal">
+      <span class="emoji">😅</span>
+      <span class="value">9.7/10</span>
+      <span class="label">livello di ansia pre-esame</span>
+    </div>
+    <div class="stat-card reveal">
+      <span class="emoji">💪</span>
+      <span class="value">100%</span>
+      <span class="label">determinazione, sempre</span>
+    </div>
+  </div>
+  <div class="section-cta">
+    <a href="#diploma" class="btn-continua">Continua <span class="arrow">↓</span></a>
+  </div>
+</section>
+
+<section class="diploma" id="diploma">
   <div class="diploma-card reveal">
-    <svg class="wreath" viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <span class="cap-egg" id="capEgg" title="Clicca">🎓</span>
+    <svg class="wreath" id="wreathEgg" viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g stroke="#c79a5c" stroke-width="1.4" opacity="0.9">
         <path d="M10 55 Q 25 10, 58 6" fill="none"/>
         <path d="M110 55 Q 95 10, 62 6" fill="none"/>
@@ -551,30 +817,44 @@
     <div class="rigo"></div>
     <p class="lode">Per l'impegno di ogni giorno, la costanza nelle difficoltà e la luce che ci ha messo in ogni pagina.</p>
   </div>
+  <div class="section-cta">
+    <a href="#perche" class="btn-continua">Continua <span class="arrow">↓</span></a>
+  </div>
 </section>
 
-<section class="dedica">
-  <div class="dedica-box reveal">
-    <div class="dedica-eyebrow">Per te</div>
-    <div class="dedica-testo">
-      <p>Ti ho vista studiare fino a tardi, ti ho vista stressata prima degli esami, ti ho vista piangere e poi ridere lo stesso giorno. E oggi ci sei arrivata. Ce l'hai fatta davvero.</p>
-      <p>Sono orgoglioso di te, tantissimo, più di quanto riesca a dirti a voce senza sembrare imbarazzato. Sono fiero di come sei, di quanto ti impegni, di quanto sei tosta anche quando pensi di non esserlo.</p>
-      <p>Io sono qui, sono tuo, e continuerò ad esserlo per tutto quello che viene dopo. Da qui si parte, insieme.</p>
-      <p>Ti amo.</p>
-    </div>
-    <div class="firma">— il tuo lui</div>
+<section class="perche" id="perche">
+  <div class="perche-eyebrow">Solo per te</div>
+  <div class="perche-title">Perché oggi sono così orgoglioso di te</div>
+  <div class="perche-box reveal">
+    <p id="reasonText"></p>
+  </div>
+  <button class="btn-perche" id="btnPerche">Dimmi perché</button>
+  <div class="perche-dots" id="percheDots"></div>
+  <div class="section-cta">
+    <a href="#finale" class="btn-continua">Scopri la sorpresa finale <span class="arrow">↓</span></a>
+  </div>
+</section>
+
+<section class="finale" id="finale">
+  <div class="finale-stage">
+    <h2 class="finale-congrats" id="finaleCongrats"></h2>
+    <div class="chat-box" id="chatBox"></div>
+    <div class="finale-firma" id="finaleFirma">— il tuo lui</div>
   </div>
 </section>
 
 <footer>Auguri, Dottoressa</footer>
 
 <button class="back-to-top" id="backToTop" aria-label="Torna all'inizio">↑</button>
+<div class="easter-toast" id="easterToast"></div>
 
 <script>
-  // Petali di lillà generati dinamicamente
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Petali di lillà che cadono ---------- */
   const container = document.getElementById('petals');
-  const colors = ['#a873c9', '#7c4fa3', '#c79a5c'];
-  const count = window.innerWidth < 600 ? 12 : 20;
+  const petalColors = ['#a873c9', '#7c4fa3', '#c79a5c'];
+  const petalCount = window.innerWidth < 600 ? 12 : 20;
 
   function makePetal(){
     const petal = document.createElement('div');
@@ -584,39 +864,50 @@
     const fallDuration = 9 + Math.random() * 8;
     const swayDuration = 3 + Math.random() * 3;
     const delay = Math.random() * 12;
-    const color = colors[Math.floor(Math.random() * colors.length)];
+    const color = petalColors[Math.floor(Math.random() * petalColors.length)];
 
     petal.style.left = left + 'vw';
     petal.style.width = size + 'px';
     petal.style.height = size + 'px';
     petal.style.animationDuration = fallDuration + 's, ' + swayDuration + 's';
     petal.style.animationDelay = '-' + delay + 's, -' + (Math.random()*swayDuration) + 's';
-
     petal.innerHTML = '<svg viewBox="0 0 20 20"><path d="M10 0 C 14 4, 14 10, 10 20 C 6 10, 6 4, 10 0 Z" fill="' + color + '"/></svg>';
     container.appendChild(petal);
   }
+  for(let i=0; i<petalCount; i++){ makePetal(); }
 
-  for(let i=0; i<count; i++){ makePetal(); }
-
-  // Rimuove l'overlay di apertura dal flusso una volta terminata l'animazione
-  const introOverlay = document.getElementById('introOverlay');
-  if(introOverlay){
-    setTimeout(() => introOverlay.classList.add('done'), 2700);
+  function burstPetals(){
+    if(prefersReduced) return;
+    for(let i=0; i<16; i++){
+      const p = document.createElement('div');
+      p.className = 'petal burst';
+      const size = 8 + Math.random()*8;
+      p.style.left = (30 + Math.random()*40) + 'vw';
+      p.style.bottom = '10vh';
+      p.style.top = 'auto';
+      p.style.width = size+'px';
+      p.style.height = size+'px';
+      p.style.animationDelay = (Math.random()*0.5)+'s';
+      const color = petalColors[Math.floor(Math.random()*petalColors.length)];
+      p.innerHTML = '<svg viewBox="0 0 20 20"><path d="M10 0 C 14 4, 14 10, 10 20 C 6 10, 6 4, 10 0 Z" fill="'+color+'"/></svg>';
+      container.appendChild(p);
+      setTimeout(() => p.remove(), 2200);
+    }
   }
 
-  // Se il browser non riesce a mostrare la foto (es. formato .heic non supportato), mostra il fallback
+  /* ---------- Overlay di apertura ---------- */
+  const introOverlay = document.getElementById('introOverlay');
+  if(introOverlay){ setTimeout(() => introOverlay.classList.add('done'), 3000); }
+
+  /* ---------- Foto: fallback + tilt ---------- */
   const fotoImg = document.getElementById('fotoImg');
   if(fotoImg){
     fotoImg.addEventListener('error', () => {
       document.getElementById('fotoCornice').classList.add('foto-error');
     });
   }
-
-  // Leggero effetto "tilt" sulla foto al passaggio del mouse (solo desktop, rispetta reduced-motion)
   const cornice = document.getElementById('fotoCornice');
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isTouch = window.matchMedia('(pointer: coarse)').matches;
-
   if(cornice && !prefersReduced && !isTouch){
     cornice.style.transition = 'transform 0.2s ease-out';
     cornice.addEventListener('mousemove', (e) => {
@@ -630,7 +921,7 @@
     });
   }
 
-  // Effetto "a comparsa": gli elementi entrano dolcemente quando arrivano nello schermo
+  /* ---------- Reveal allo scroll ---------- */
   const revealEls = document.querySelectorAll('.reveal');
   if(prefersReduced){
     revealEls.forEach(el => el.classList.add('visible'));
@@ -646,7 +937,7 @@
     revealEls.forEach(el => revealObserver.observe(el));
   }
 
-  // Pulsante "torna su": compare dopo un po' di scroll
+  /* ---------- Torna su ---------- */
   const backToTop = document.getElementById('backToTop');
   if(backToTop){
     window.addEventListener('scroll', () => {
@@ -655,6 +946,131 @@
     backToTop.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
     });
+  }
+
+  /* ---------- Easter egg ---------- */
+  const easterToast = document.getElementById('easterToast');
+  let toastTimer = null;
+  function showEasterEgg(text){
+    if(!easterToast) return;
+    easterToast.textContent = text;
+    easterToast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => easterToast.classList.remove('show'), 2800);
+  }
+  const capEgg = document.getElementById('capEgg');
+  const wreathEgg = document.getElementById('wreathEgg');
+  if(capEgg) capEgg.addEventListener('click', () => showEasterEgg('Il tocco lo meriti tutto tu 🎓✨'));
+  if(wreathEgg) wreathEgg.addEventListener('click', () => showEasterEgg('Psst... sei la persona più forte che conosco 🤫💜'));
+
+  /* ---------- Perché sono orgoglioso ---------- */
+  const reasons = [
+    "Perché non hai mai mollato, nemmeno nei momenti peggiori.",
+    "Perché hai trasformato la paura in metodo, e il metodo in risultati.",
+    "Perché anche quando smettevi di crederci, ricominciavi comunque.",
+    "Perché ridi delle cose che ti spaventano, ma le affronti lo stesso.",
+    "Perché ogni piccolo passo, per te, è stato un passo vero.",
+    "Perché mi hai fatto vedere cosa vuol dire essere costanti.",
+    "Perché sei tosta, anche quando pensi di non esserlo.",
+    "Perché sei arrivata fin qui, ed è solo l'inizio."
+  ];
+  let reasonIdx = 0;
+  const reasonText = document.getElementById('reasonText');
+  const percheDots = document.getElementById('percheDots');
+  function renderDots(){
+    percheDots.textContent = (reasonIdx % reasons.length + 1) + ' / ' + reasons.length;
+  }
+  function showReason(next){
+    if(next){
+      reasonText.style.opacity = 0;
+      setTimeout(() => {
+        reasonIdx = (reasonIdx + 1) % reasons.length;
+        reasonText.textContent = reasons[reasonIdx];
+        renderDots();
+        reasonText.style.opacity = 1;
+      }, prefersReduced ? 0 : 300);
+    } else {
+      reasonText.textContent = reasons[reasonIdx];
+      renderDots();
+    }
+  }
+  showReason(false);
+  const btnPerche = document.getElementById('btnPerche');
+  if(btnPerche) btnPerche.addEventListener('click', () => showReason(true));
+
+  /* ---------- Finale: congratulazioni + chat + firma ---------- */
+  const wait = (ms) => new Promise(res => setTimeout(res, ms));
+
+  async function typeWriter(el, text, speed){
+    if(prefersReduced){ el.textContent = text; return; }
+    el.textContent = '';
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    for(let i=0; i<text.length; i++){
+      el.textContent += text[i];
+      await wait(speed);
+    }
+  }
+
+  const chatMessages = [
+    { sender: 'lui', text: "Ti ho vista studiare fino a tardi, stressata prima degli esami, piangere e ridere lo stesso giorno." },
+    { sender: 'lei', text: "E tu c'eri sempre 🤍" },
+    { sender: 'lui', text: "Oggi ci sei arrivata. Ce l'hai fatta davvero." },
+    { sender: 'lei', text: "Ce l'abbiamo fatta 😊" },
+    { sender: 'lui', text: "Sono orgoglioso di te, tantissimo. Più di quanto riesca a dirti a voce senza sembrare imbarazzato." },
+    { sender: 'lui', text: "Sono fiero di come sei, di quanto ti impegni, di quanto sei tosta anche quando pensi di non esserlo." },
+    { sender: 'lui', text: "Io sono qui, sono tuo, e continuerò ad esserlo per tutto quello che viene dopo." },
+    { sender: 'lei', text: "Sempre insieme?" },
+    { sender: 'lui', text: "Sempre. Ti amo." },
+    { sender: 'lei', text: "❤️" }
+  ];
+
+  const chatBox = document.getElementById('chatBox');
+  const finaleCongrats = document.getElementById('finaleCongrats');
+  const finaleFirma = document.getElementById('finaleFirma');
+
+  async function runChat(){
+    for(const msg of chatMessages){
+      if(!prefersReduced){
+        const typing = document.createElement('div');
+        typing.className = 'typing ' + msg.sender;
+        typing.innerHTML = '<span></span><span></span><span></span>';
+        chatBox.appendChild(typing);
+        await wait(700);
+        typing.remove();
+      }
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble ' + msg.sender;
+      bubble.textContent = msg.text;
+      chatBox.appendChild(bubble);
+      await wait(prefersReduced ? 60 : 500);
+    }
+  }
+
+  let finaleStarted = false;
+  async function startFinale(){
+    if(finaleStarted) return;
+    finaleStarted = true;
+    await wait(400);
+    await typeWriter(finaleCongrats, "Congratulazioni,\nDottoressa Rosita Poliseno", prefersReduced ? 0 : 45);
+    await wait(prefersReduced ? 100 : 700);
+    await runChat();
+    await wait(300);
+    finaleFirma.classList.add('show');
+    burstPetals();
+  }
+
+  const finaleSection = document.getElementById('finale');
+  if(finaleSection){
+    const finaleObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          startFinale();
+          finaleObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    finaleObserver.observe(finaleSection);
   }
 </script>
 
