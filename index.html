@@ -29,6 +29,43 @@
     position: relative;
   }
 
+  /* ---------- OVERLAY DI APERTURA ---------- */
+  .intro-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--plum-deep);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    animation: introOut 0.8s ease forwards 1.5s;
+  }
+  .intro-overlay.done{ display: none; }
+
+  .intro-flower{
+    transform: scale(0);
+    animation: bloom 1.1s cubic-bezier(.34,1.56,.64,1) forwards 0.15s;
+  }
+  .ipetal{
+    transform-origin: 50px 50px;
+    transform: scale(0.3);
+    animation: unfurl 1s ease forwards 0.3s;
+  }
+
+  @keyframes bloom{
+    to{ transform: scale(1); }
+  }
+  @keyframes unfurl{
+    to{ transform: scale(1); }
+  }
+  @keyframes introOut{
+    to{ opacity: 0; visibility: hidden; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .intro-overlay{ display: none; }
+  }
+
   /* ---------- Petali che cadono ---------- */
   .petals{
     position: fixed;
@@ -174,6 +211,29 @@
     filter: saturate(0.95) contrast(1.03);
   }
 
+  .foto-fallback{
+    display: none;
+    position: absolute;
+    inset: 14px;
+    border-radius: 3px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    background: linear-gradient(160deg, rgba(185,143,212,0.15), rgba(43,26,56,0.4));
+    text-align: center;
+  }
+  .foto-fallback span{ font-size: 2.6rem; }
+  .foto-fallback p{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--lilac-soft);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  .foto-cornice.foto-error .foto-fallback{ display: flex; }
+  .foto-cornice.foto-error img{ display: none; }
+
   .foto-caption{
     margin-top: 2rem;
     font-family:'Cormorant Garamond', serif;
@@ -288,6 +348,44 @@
     margin: 0 auto;
   }
 
+  /* ---------- SIGNIFICATO DEL LILLÀ ---------- */
+  .lillà{
+    display:flex;
+    justify-content:center;
+    padding: 2rem 1.5rem 6rem;
+  }
+
+  .lillà-testo{
+    max-width: 480px;
+    text-align:center;
+    position: relative;
+    padding-top: 2rem;
+  }
+
+  .lillà-testo::before{
+    content: '🪻';
+    display:block;
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+    opacity: 0.9;
+  }
+
+  .lillà-eyebrow{
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    font-size: 0.62rem;
+    color: var(--lilac);
+    margin-bottom: 1.1rem;
+  }
+
+  .lillà-testo p{
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 2.3vw, 1.2rem);
+    line-height: 1.8;
+    color: var(--lilac-soft);
+  }
+
   /* ---------- DEDICA ---------- */
   .dedica{
     padding: 4rem 1.5rem 7rem;
@@ -352,6 +450,19 @@
 </head>
 <body>
 
+<div class="intro-overlay" id="introOverlay">
+  <svg class="intro-flower" viewBox="0 0 100 100" width="70" height="70">
+    <g id="petalGroup" fill="#b98fd4">
+      <ellipse class="ipetal" cx="50" cy="30" rx="10" ry="20"/>
+      <ellipse class="ipetal" cx="50" cy="30" rx="10" ry="20" transform="rotate(72 50 50)"/>
+      <ellipse class="ipetal" cx="50" cy="30" rx="10" ry="20" transform="rotate(144 50 50)"/>
+      <ellipse class="ipetal" cx="50" cy="30" rx="10" ry="20" transform="rotate(216 50 50)"/>
+      <ellipse class="ipetal" cx="50" cy="30" rx="10" ry="20" transform="rotate(288 50 50)"/>
+    </g>
+    <circle cx="50" cy="50" r="7" fill="#cfa96b"/>
+  </svg>
+</div>
+
 <div class="petals" id="petals"></div>
 
 <section class="hero">
@@ -364,7 +475,11 @@
 <section class="foto-wrap">
   <div class="foto-eyebrow">Il giorno più bello</div>
   <div class="foto-cornice" id="fotoCornice">
-    <img src="laurea.heic" alt="Rosita il giorno della laurea" loading="lazy">
+    <img src="laurea.heic" alt="Rosita il giorno della laurea" loading="lazy" id="fotoImg">
+    <div class="foto-fallback" id="fotoFallback">
+      <span>🪻</span>
+      <p>Metti qui la foto<br><em>(laurea.heic)</em></p>
+    </div>
   </div>
   <p class="foto-caption">Questo sorriso, oggi, vale più di ogni voto in pagella.</p>
 </section>
@@ -390,10 +505,17 @@
       </g>
     </svg>
     <div class="conferisce">In lode al merito e alla dedizione, si conferisce il titolo di</div>
-    <div class="titolo">Dottoressa</div>
+    <div class="titolo">Doctor</div>
     <div class="nome">Rosita Poliseno</div>
     <div class="rigo"></div>
     <p class="lode">Per l'impegno di ogni giorno, la costanza nelle difficoltà e la luce che ci ha messo in ogni pagina.</p>
+  </div>
+</section>
+
+<section class="lillà">
+  <div class="lillà-testo">
+    <div class="lillà-eyebrow">Perché il lillà</div>
+    <p>Il lillà fiorisce a primavera e dura poco, ma nel poco tempo che ha, riempie tutto di profumo. Per gli antichi era il fiore dei nuovi inizi. Mi è sembrato perfetto per te, oggi.</p>
   </div>
 </section>
 
@@ -401,10 +523,10 @@
   <div class="dedica-box">
     <div class="dedica-eyebrow">Per te</div>
     <div class="dedica-testo">
-      <p>Ci sono traguardi che si festeggiano con un applauso, e altri che meritano il silenzio di chi guarda e capisce quanto sia costato arrivarci. Il tuo è il secondo tipo. Io c'ero, in parte, per le sere in cui i libri sembravano non finire mai, per le ansie prima di un esame, per quella voce che a volte ti diceva "non ce la farò" e che io non ho mai creduto, nemmeno per un secondo.</p>
-      <p>Oggi quella voce ha perso. Hai vinto tu, con la testardaggine e la delicatezza che ti appartengono, con la capacità rara di essere forte senza smettere di essere te stessa.</p>
-      <p>Sono fiero di te in un modo che le parole raccontano solo a metà. Fiero di come studi, di come lotti, di come ami le cose fatte bene. E sono fiero, soprattutto, di essere al tuo fianco: non davanti a guidarti, non dietro a spingerti, ma accanto, un passo dopo l'altro, come è sempre stato.</p>
-      <p>Questo è solo l'inizio di tutto quello che verrà. E qualunque cosa sia, "here we go": ci sono anch'io.</p>
+      <p>Non sono bravo con le parole come lo sei tu con i libri, quindi scrivo semplice.</p>
+      <p>Ti ho vista studiare fino a tardi, ti ho vista stressata prima degli esami, ti ho vista piangere e poi ridere lo stesso giorno. E oggi ci sei arrivata. Ce l'hai fatta davvero.</p>
+      <p>Sono orgoglioso di te, tantissimo, più di quanto riesca a dirti a voce senza sembrare imbarazzato. Sono fiero di come sei, di quanto ti impegni, di quanto sei tosta anche quando pensi di non esserlo.</p>
+      <p>Io sono qui, sono tuo, e continuerò ad esserlo per tutto quello che viene dopo. "Here we go", amore. Da qui si parte, insieme.</p>
     </div>
     <div class="firma">— con tutto l'orgoglio del mondo, il tuo lui</div>
   </div>
@@ -439,6 +561,20 @@
   }
 
   for(let i=0; i<count; i++){ makePetal(); }
+
+  // Rimuove l'overlay di apertura dal flusso una volta terminata l'animazione
+  const introOverlay = document.getElementById('introOverlay');
+  if(introOverlay){
+    setTimeout(() => introOverlay.classList.add('done'), 2400);
+  }
+
+  // Se il browser non riesce a mostrare la foto (es. formato .heic non supportato), mostra il fallback
+  const fotoImg = document.getElementById('fotoImg');
+  if(fotoImg){
+    fotoImg.addEventListener('error', () => {
+      document.getElementById('fotoCornice').classList.add('foto-error');
+    });
+  }
 
   // Leggero effetto "tilt" sulla foto al passaggio del mouse (solo desktop, rispetta reduced-motion)
   const cornice = document.getElementById('fotoCornice');
