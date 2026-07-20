@@ -565,58 +565,27 @@
   }
   @keyframes blink{ 50%{ opacity: 0; } }
 
-  .chat-box{
-    margin-top: 2.5rem;
-    display:flex;
-    flex-direction:column;
-    text-align:left;
-  }
-  .bubble{
-    max-width: 78%;
-    padding: 0.7rem 1.05rem;
-    border-radius: 18px;
-    margin-bottom: 0.7rem;
-    font-family: 'Jost', sans-serif;
-    font-size: 0.92rem;
-    line-height: 1.45;
-    opacity: 0;
-    transform: translateY(10px);
-    animation: bubbleIn 0.45s var(--ease) forwards;
-  }
-  .bubble.lui{
-    margin-left: auto;
-    background: linear-gradient(135deg, var(--lavender-deep), var(--lavender));
-    color: #fff;
-    border-bottom-right-radius: 4px;
-  }
-  .bubble.lei{
-    margin-right: auto;
-    background: #fff;
+  .finale-dedica{
+    margin-top: 2.6rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.1rem, 2.6vw, 1.4rem);
+    line-height: 1.9;
     color: var(--ink);
-    border: 1px solid rgba(124,79,163,0.22);
-    border-bottom-left-radius: 4px;
-    box-shadow: 0 6px 16px -10px rgba(59,38,80,0.3);
+    text-align: left;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 1.1s ease, transform 1.1s var(--ease);
   }
-  @keyframes bubbleIn{ to{ opacity: 1; transform: translateY(0); } }
-
-  .typing{
-    display:flex;
-    gap: 4px;
-    padding: 0.7rem 1rem;
-    border-radius: 18px;
-    width: fit-content;
-    margin-bottom: 0.7rem;
+  .finale-dedica.show{ opacity: 1; transform: translateY(0); }
+  .finale-dedica p{ margin-bottom: 1.25rem; }
+  .finale-dedica p:first-child::first-letter{
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    float: left;
+    line-height: 0.8;
+    margin: 0.1em 0.08em 0 0;
+    color: var(--gold);
   }
-  .typing.lui{ margin-left:auto; background: rgba(124,79,163,0.25); border-bottom-right-radius:4px; }
-  .typing.lei{ margin-right:auto; background: rgba(255,255,255,0.9); border: 1px solid rgba(124,79,163,0.2); border-bottom-left-radius:4px; }
-  .typing span{
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--lavender-deep);
-    animation: typingDot 1.1s infinite ease-in-out;
-  }
-  .typing span:nth-child(2){ animation-delay: 0.15s; }
-  .typing span:nth-child(3){ animation-delay: 0.3s; }
-  @keyframes typingDot{ 0%,60%,100%{ transform: translateY(0); opacity:0.4; } 30%{ transform: translateY(-4px); opacity:1; } }
 
   .finale-firma{
     margin-top: 2.4rem;
@@ -838,7 +807,13 @@
 <section class="finale" id="finale">
   <div class="finale-stage">
     <h2 class="finale-congrats" id="finaleCongrats"></h2>
-    <div class="chat-box" id="chatBox"></div>
+    <div class="finale-dedica" id="finaleDedica">
+      <p>Ti ho vista studiare fino a tardi, ti ho vista stressata prima degli esami, ti ho vista piangere e poi ridere lo stesso giorno. E oggi ci sei arrivata. Ce l'hai fatta davvero.</p>
+      <p>E l'hai fatto anche lavorando, non solo studiando: tra un turno e l'altro, con le giornate piene e la stanchezza doppia. Anche per quello sono orgoglioso di te, forse anche di più.</p>
+      <p>Sono orgoglioso di te, tantissimo, più di quanto riesca a dirti a voce senza sembrare imbarazzato. Sono fiero di come sei, di quanto ti impegni, di quanto sei tosta anche quando pensi di non esserlo.</p>
+      <p>Io sono qui, sono tuo, e continuerò ad esserlo per tutto quello che viene dopo. Da qui si parte, insieme.</p>
+      <p>Ti amo.</p>
+    </div>
     <div class="finale-firma" id="finaleFirma">— il tuo lui</div>
   </div>
 </section>
@@ -971,6 +946,7 @@
     "Perché ridi delle cose che ti spaventano, ma le affronti lo stesso.",
     "Perché ogni piccolo passo, per te, è stato un passo vero.",
     "Perché mi hai fatto vedere cosa vuol dire essere costanti.",
+    "Perché hai studiato lavorando, senza mai lamentarti quanto avresti potuto.",
     "Perché sei tosta, anche quando pensi di non esserlo.",
     "Perché sei arrivata fin qui, ed è solo l'inizio."
   ];
@@ -1012,40 +988,9 @@
     }
   }
 
-  const chatMessages = [
-    { sender: 'lui', text: "Ti ho vista studiare fino a tardi, stressata prima degli esami, piangere e ridere lo stesso giorno." },
-    { sender: 'lei', text: "E tu c'eri sempre 🤍" },
-    { sender: 'lui', text: "Oggi ci sei arrivata. Ce l'hai fatta davvero." },
-    { sender: 'lei', text: "Ce l'abbiamo fatta 😊" },
-    { sender: 'lui', text: "Sono orgoglioso di te, tantissimo. Più di quanto riesca a dirti a voce senza sembrare imbarazzato." },
-    { sender: 'lui', text: "Sono fiero di come sei, di quanto ti impegni, di quanto sei tosta anche quando pensi di non esserlo." },
-    { sender: 'lui', text: "Io sono qui, sono tuo, e continuerò ad esserlo per tutto quello che viene dopo." },
-    { sender: 'lei', text: "Sempre insieme?" },
-    { sender: 'lui', text: "Sempre. Ti amo." },
-    { sender: 'lei', text: "❤️" }
-  ];
-
-  const chatBox = document.getElementById('chatBox');
+  const finaleDedica = document.getElementById('finaleDedica');
   const finaleCongrats = document.getElementById('finaleCongrats');
   const finaleFirma = document.getElementById('finaleFirma');
-
-  async function runChat(){
-    for(const msg of chatMessages){
-      if(!prefersReduced){
-        const typing = document.createElement('div');
-        typing.className = 'typing ' + msg.sender;
-        typing.innerHTML = '<span></span><span></span><span></span>';
-        chatBox.appendChild(typing);
-        await wait(700);
-        typing.remove();
-      }
-      const bubble = document.createElement('div');
-      bubble.className = 'bubble ' + msg.sender;
-      bubble.textContent = msg.text;
-      chatBox.appendChild(bubble);
-      await wait(prefersReduced ? 60 : 500);
-    }
-  }
 
   let finaleStarted = false;
   async function startFinale(){
@@ -1054,8 +999,8 @@
     await wait(400);
     await typeWriter(finaleCongrats, "Congratulazioni,\nDottoressa Rosita Poliseno", prefersReduced ? 0 : 45);
     await wait(prefersReduced ? 100 : 700);
-    await runChat();
-    await wait(300);
+    finaleDedica.classList.add('show');
+    await wait(prefersReduced ? 100 : 1400);
     finaleFirma.classList.add('show');
     burstPetals();
   }
