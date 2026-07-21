@@ -434,9 +434,11 @@
     position: absolute;
     inset: 14px;
     opacity: 0;
+    z-index: 1;
+    pointer-events: none;
     transition: opacity 1s ease;
   }
-  .foto-slide.active{ opacity: 1; z-index: 2; }
+  .foto-slide.active{ opacity: 1; z-index: 2; pointer-events: auto; }
 
   .foto-slide img{
     width: 100%;
@@ -973,15 +975,15 @@
   <div class="foto-eyebrow">Il giorno più bello</div>
   <div class="foto-cornice reveal" id="fotoCornice">
     <div class="foto-slide active" data-slide="0">
-      <img src="laurea.JPG" alt="Rosita il giorno della laurea" loading="lazy">
+      <img src="laurea.JPG" alt="Rosita il giorno della laurea">
       <div class="foto-fallback"><span>🪻</span><p>Metti qui la foto<br><em>(laurea.JPG)</em></p></div>
     </div>
     <div class="foto-slide" data-slide="1">
-      <img src="laurea1.jpg" alt="Rosita, un altro momento della laurea" loading="lazy">
+      <img src="laurea1.JPG" alt="Rosita, un altro momento della laurea">
       <div class="foto-fallback"><span>🪻</span><p>Metti qui la foto<br><em>(laurea1.JPG)</em></p></div>
     </div>
     <div class="foto-slide" data-slide="2">
-      <img src="laurea2.jpg" alt="Rosita, un altro momento della laurea" loading="lazy">
+      <img src="laurea2.JPG" alt="Rosita, un altro momento della laurea">
       <div class="foto-fallback"><span>🪻</span><p>Metti qui la foto<br><em>(laurea2.JPG)</em></p></div>
     </div>
   </div>
@@ -1385,12 +1387,25 @@
   }
 
   if(fotoSlides.length){
+    goToFoto(0); // forza sempre la partenza dalla prima foto, senza ambiguità
     startFotoTimer();
     fotoDots.forEach(dot => {
       dot.addEventListener('click', () => {
         goToFoto(parseInt(dot.dataset.dot, 10));
         startFotoTimer(); // riparte il conteggio dopo una scelta manuale
       });
+    });
+
+    // Quando il telefono si blocca o si cambia app, il browser rallenta i timer
+    // e poi li fa "recuperare" tutti insieme alla riapertura: qui invece,
+    // se la pagina torna visibile, ripartiamo puliti dalla foto attuale
+    // invece di lasciare che il timer salti avanti di scatto.
+    document.addEventListener('visibilitychange', () => {
+      if(document.visibilityState === 'visible'){
+        startFotoTimer();
+      } else {
+        clearInterval(fotoTimer);
+      }
     });
   }
 
@@ -1439,18 +1454,25 @@
   /* ---------- Musica di sottofondo ---------- */
   // Il file "alba-chiara.mp3" va aggiunto dall'utente (posseduto legalmente),
   // nella stessa cartella di index.html: non posso includerlo io per via del copyright.
-  // MUSIC_START_SECONDS: il secondo esatto della canzone da cui parte ogni volta
-  // che viene premuto play. Regola questo numero finché non cade nel punto che vuoi tu.
+  // MUSIC_START_SECONDS: il secondo esatto della canzone da cui parte SOLO la prima
+  // volta che viene premuto play. Dopo una pausa, riprende da dove l'hai lasciata.
   const MUSIC_START_SECONDS = 78; // 1:18
   const bgMusic = document.getElementById('bgMusic');
   const musicToggle = document.getElementById('musicToggle');
   let musicPlaying = false;
+  let musicStarted = false; // true dopo il primissimo play
   let fadeInterval = null;
 
   if(musicToggle && bgMusic){
     musicToggle.addEventListener('click', () => {
       if(!musicPlaying){
-        try{ bgMusic.currentTime = MUSIC_START_SECONDS; } catch(err){ /* file non ancora pronto, riparte da 0 */ }
+        if(!musicStarted){
+          try{ bgMusic.currentTime = MUSIC_START_SECONDS; } catch(err){ /* file non ancora pronto, riparte da 0 */ }
+          musicStarted = true;
+        }
+        // Nota: se metti in pausa e poi premi di nuovo play, NON tocchiamo più
+        // currentTime: bgMusic.pause() da solo non riporta la canzone all'inizio,
+        // quindi riprende esattamente da dove l'hai lasciata.
         bgMusic.volume = 0;
         bgMusic.play().then(() => {
           clearInterval(fadeInterval);
@@ -1467,6 +1489,7 @@
         musicToggle.textContent = '❚❚';
         musicPlaying = true;
       } else {
+        clearInterval(fadeInterval);
         bgMusic.pause();
         musicToggle.classList.remove('playing');
         musicToggle.textContent = '♪';
