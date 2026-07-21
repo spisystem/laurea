@@ -31,7 +31,47 @@
     position: relative;
   }
 
-  section{ position:relative; }
+  section{ position:relative; z-index:1; }
+  footer{ position:relative; z-index:1; }
+
+  /* ---------- Blob di sfondo, delicatissimi ---------- */
+  .bg-blob{
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+  .bg-blob.b1{
+    width: 420px; height: 420px;
+    top: -12%; left: -12%;
+    background: radial-gradient(circle, rgba(168,115,201,0.35), transparent 70%);
+    animation: driftOne 46s ease-in-out infinite alternate;
+  }
+  .bg-blob.b2{
+    width: 380px; height: 380px;
+    bottom: -14%; right: -10%;
+    background: radial-gradient(circle, rgba(199,154,92,0.26), transparent 70%);
+    animation: driftTwo 38s ease-in-out infinite alternate;
+  }
+  .bg-blob.b3{
+    width: 300px; height: 300px;
+    top: 45%; right: -8%;
+    background: radial-gradient(circle, rgba(168,115,201,0.22), transparent 70%);
+    animation: driftOne 52s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes driftOne{
+    0%{ transform: translate(0,0) scale(1); }
+    100%{ transform: translate(50px, 35px) scale(1.08); }
+  }
+  @keyframes driftTwo{
+    0%{ transform: translate(0,0) scale(1); }
+    100%{ transform: translate(-45px,-30px) scale(1.05); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .bg-blob{ animation: none; }
+  }
 
   /* ---------- OVERLAY DI APERTURA: TULIPANO CHE SBOCCIA + FRASI ---------- */
   .intro-overlay{
@@ -207,9 +247,10 @@
     background-clip: text;
     color: transparent;
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(30px) scale(1.03);
   }
-  .hero.play .here-we-go{ animation: fadeUp 1.1s var(--ease) forwards 0.35s, shimmer 6s linear infinite 1.4s; }
+  .hero.play .here-we-go{ animation: titleReveal 1.3s var(--ease) forwards 0.35s, shimmer 6s linear infinite 1.4s; }
+  @keyframes titleReveal{ to{ opacity: 1; transform: translateY(0) scale(1); } }
 
   .hero-sub{
     margin-top: 2.4rem;
@@ -232,6 +273,51 @@
   }
   .hero.play .hero-ornament{ animation: fadeUp 1s ease forwards 1.25s; }
   .hero-ornament span{ width: 34px; height: 1px; background: var(--lavender); opacity: 0.6; }
+
+  /* ---------- DIVISORE A RAMO D'ALLORO TRA LE SEZIONI ---------- */
+  .section-divider{
+    position: relative;
+    z-index: 1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 0.5rem 1.5rem;
+  }
+  .laurel-svg{ width: 150px; height: 30px; overflow: visible; }
+
+  .laurel-svg .stem{
+    fill: none;
+    stroke-dasharray: 130;
+    stroke-dashoffset: 130;
+    transition: stroke-dashoffset 1.2s var(--ease);
+  }
+  .section-divider.visible .laurel-svg .stem{ stroke-dashoffset: 0; }
+
+  /* Le foglie sono <use> senza transform proprio: la posizione/rotazione
+     resta sull'attributo del <g> genitore, così l'animazione CSS non va
+     mai in conflitto con il posizionamento (stesso principio già usato
+     per il tulipano). */
+  .laurel-svg .leaf{
+    opacity: 0;
+    transform-origin: 0 0;
+    transform: scale(0.25);
+    transition: opacity 0.6s ease, transform 0.6s var(--ease);
+    transition-delay: var(--d, 0s);
+  }
+  .section-divider.visible .laurel-svg .leaf{ opacity: 1; transform: scale(1); }
+
+  .laurel-svg .gold-dot{
+    opacity: 0;
+    transition: opacity 0.7s ease;
+    transition-delay: 0.55s;
+  }
+  .section-divider.visible .laurel-svg .gold-dot{ opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce){
+    .laurel-svg .stem{ transition: none; stroke-dashoffset: 0; }
+    .laurel-svg .leaf{ transition: none; opacity: 1; transform: scale(1); }
+    .laurel-svg .gold-dot{ transition: none; opacity: 1; }
+  }
 
   .hero-name{
     margin-top: 1rem;
@@ -284,6 +370,7 @@
     border-radius: 6px;
     box-shadow: 0 25px 55px -25px rgba(59,38,80,0.35);
     transform-style: preserve-3d;
+    overflow: hidden;
   }
 
   .foto-cornice::before{
@@ -297,6 +384,24 @@
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     opacity: 0.8;
+  }
+
+  .foto-cornice::after{
+    content:'';
+    position:absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 42%, rgba(255,255,255,0.5) 50%, transparent 58%);
+    transform: translateX(-130%);
+    pointer-events: none;
+    animation: shineSweep 14s ease-in-out infinite;
+  }
+  @keyframes shineSweep{
+    0%, 85%{ transform: translateX(-130%); }
+    93%{ transform: translateX(130%); }
+    100%{ transform: translateX(130%); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .foto-cornice::after{ animation: none; display: none; }
   }
 
   .foto-cornice img{
@@ -624,19 +729,20 @@
     font-size: 1.15rem;
     color: var(--lavender-deep);
     opacity: 0;
-    transition: opacity 1.2s ease;
+    transform: translateY(8px);
+    transition: opacity 2.1s ease, transform 2.1s var(--ease);
     position: relative;
   }
-  .finale-firma.show{ opacity: 1; }
+  .finale-firma.show{ opacity: 1; transform: translateY(0); }
   .finale-firma.show::before{
     content:'';
     position:absolute;
-    inset: -30px -60px;
-    background: radial-gradient(ellipse at center, rgba(199,154,92,0.25), transparent 65%);
+    inset: -40px -80px;
+    background: radial-gradient(ellipse at center, rgba(199,154,92,0.18), transparent 70%);
     z-index: -1;
-    animation: glowPulse 2.4s ease-in-out infinite;
+    animation: glowPulse 3.4s ease-in-out infinite;
   }
-  @keyframes glowPulse{ 0%,100%{ opacity:0.5; transform: scale(1);} 50%{ opacity:1; transform: scale(1.08);} }
+  @keyframes glowPulse{ 0%,100%{ opacity:0.45; transform: scale(1);} 50%{ opacity:0.8; transform: scale(1.06);} }
 
   footer{
     text-align:center;
@@ -710,6 +816,19 @@
 </head>
 <body>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="laurelLeaf">
+      <path d="M0,0 C-1.5,-1.2 -2.1,-3.6 -1,-6.2 C-0.4,-7.8 0,-9 0,-9.4 C0,-9 0.4,-7.8 1,-6.2 C2.1,-3.6 1.5,-1.2 0,0 Z"/>
+      <path d="M0,-0.4 C0.15,-3 0.1,-6.2 0,-9" fill="none" stroke="rgba(50,70,48,0.4)" stroke-width="0.35" stroke-linecap="round"/>
+    </g>
+  </defs>
+</svg>
+
+<div class="bg-blob b1"></div>
+<div class="bg-blob b2"></div>
+<div class="bg-blob b3"></div>
+
 <div class="intro-overlay" id="introOverlay">
   <svg viewBox="0 0 100 150" width="90" height="135">
     <defs>
@@ -744,6 +863,35 @@
   <a href="#foto" class="btn-continua">Continua <span class="arrow">↓</span></a>
 </section>
 
+<div class="section-divider reveal">
+  <svg class="laurel-svg" viewBox="0 0 180 34" aria-hidden="true">
+    <path class="stem" d="M90,29 C104,25 122,19 140,14 C152,11 162,9 170,7" stroke="#9caf88" stroke-width="1.3" stroke-linecap="round"/>
+    <path class="stem" d="M90,29 C76,25 58,19 40,14 C28,11 18,9 10,7" stroke="#9caf88" stroke-width="1.3" stroke-linecap="round"/>
+
+    <g transform="translate(100,26) rotate(-70)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#9caf88"/></g>
+    <g transform="translate(100,26) rotate(-25)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#8aa47a"/></g>
+    <g transform="translate(116,21) rotate(-65) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#9caf88"/></g>
+    <g transform="translate(116,21) rotate(-20) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#8aa47a"/></g>
+    <g transform="translate(133,16) rotate(-60) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#9caf88"/></g>
+    <g transform="translate(133,16) rotate(-15) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#8aa47a"/></g>
+    <g transform="translate(150,11) rotate(-55) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#9caf88"/></g>
+    <g transform="translate(150,11) rotate(-10) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#8aa47a"/></g>
+
+    <g transform="translate(80,26) rotate(70)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#9caf88"/></g>
+    <g transform="translate(80,26) rotate(25)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#8aa47a"/></g>
+    <g transform="translate(64,21) rotate(65) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#9caf88"/></g>
+    <g transform="translate(64,21) rotate(20) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#8aa47a"/></g>
+    <g transform="translate(47,16) rotate(60) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#9caf88"/></g>
+    <g transform="translate(47,16) rotate(15) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#8aa47a"/></g>
+    <g transform="translate(30,11) rotate(55) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#9caf88"/></g>
+    <g transform="translate(30,11) rotate(10) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#8aa47a"/></g>
+
+    <circle class="gold-dot" cx="90" cy="29" r="1.6" fill="#c79a5c"/>
+    <circle class="gold-dot" cx="170" cy="7" r="1.3" fill="#c79a5c"/>
+    <circle class="gold-dot" cx="10" cy="7" r="1.3" fill="#c79a5c"/>
+  </svg>
+</div>
+
 <section class="foto-wrap" id="foto">
   <div class="foto-eyebrow">Il giorno più bello</div>
   <div class="foto-cornice reveal" id="fotoCornice">
@@ -758,6 +906,35 @@
     <a href="#stats" class="btn-continua">Scopri la prossima sorpresa <span class="arrow">↓</span></a>
   </div>
 </section>
+
+<div class="section-divider reveal">
+  <svg class="laurel-svg" viewBox="0 0 180 34" aria-hidden="true">
+    <path class="stem" d="M90,29 C104,25 122,19 140,14 C152,11 162,9 170,7" stroke="#9caf88" stroke-width="1.3" stroke-linecap="round"/>
+    <path class="stem" d="M90,29 C76,25 58,19 40,14 C28,11 18,9 10,7" stroke="#9caf88" stroke-width="1.3" stroke-linecap="round"/>
+
+    <g transform="translate(100,26) rotate(-70)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#9caf88"/></g>
+    <g transform="translate(100,26) rotate(-25)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#8aa47a"/></g>
+    <g transform="translate(116,21) rotate(-65) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#9caf88"/></g>
+    <g transform="translate(116,21) rotate(-20) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#8aa47a"/></g>
+    <g transform="translate(133,16) rotate(-60) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#9caf88"/></g>
+    <g transform="translate(133,16) rotate(-15) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#8aa47a"/></g>
+    <g transform="translate(150,11) rotate(-55) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#9caf88"/></g>
+    <g transform="translate(150,11) rotate(-10) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#8aa47a"/></g>
+
+    <g transform="translate(80,26) rotate(70)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#9caf88"/></g>
+    <g transform="translate(80,26) rotate(25)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#8aa47a"/></g>
+    <g transform="translate(64,21) rotate(65) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#9caf88"/></g>
+    <g transform="translate(64,21) rotate(20) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#8aa47a"/></g>
+    <g transform="translate(47,16) rotate(60) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#9caf88"/></g>
+    <g transform="translate(47,16) rotate(15) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#8aa47a"/></g>
+    <g transform="translate(30,11) rotate(55) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#9caf88"/></g>
+    <g transform="translate(30,11) rotate(10) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#8aa47a"/></g>
+
+    <circle class="gold-dot" cx="90" cy="29" r="1.6" fill="#c79a5c"/>
+    <circle class="gold-dot" cx="170" cy="7" r="1.3" fill="#c79a5c"/>
+    <circle class="gold-dot" cx="10" cy="7" r="1.3" fill="#c79a5c"/>
+  </svg>
+</div>
 
 <section class="stats-wrap" id="stats">
   <div class="stats-heading">Il bilancio di questi anni</div>
@@ -788,6 +965,35 @@
     <a href="#diploma" class="btn-continua">Continua <span class="arrow">↓</span></a>
   </div>
 </section>
+
+<div class="section-divider reveal">
+  <svg class="laurel-svg" viewBox="0 0 180 34" aria-hidden="true">
+    <path class="stem" d="M90,29 C104,25 122,19 140,14 C152,11 162,9 170,7" stroke="#9caf88" stroke-width="1.3" stroke-linecap="round"/>
+    <path class="stem" d="M90,29 C76,25 58,19 40,14 C28,11 18,9 10,7" stroke="#9caf88" stroke-width="1.3" stroke-linecap="round"/>
+
+    <g transform="translate(100,26) rotate(-70)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#9caf88"/></g>
+    <g transform="translate(100,26) rotate(-25)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#8aa47a"/></g>
+    <g transform="translate(116,21) rotate(-65) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#9caf88"/></g>
+    <g transform="translate(116,21) rotate(-20) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#8aa47a"/></g>
+    <g transform="translate(133,16) rotate(-60) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#9caf88"/></g>
+    <g transform="translate(133,16) rotate(-15) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#8aa47a"/></g>
+    <g transform="translate(150,11) rotate(-55) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#9caf88"/></g>
+    <g transform="translate(150,11) rotate(-10) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#8aa47a"/></g>
+
+    <g transform="translate(80,26) rotate(70)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#9caf88"/></g>
+    <g transform="translate(80,26) rotate(25)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#8aa47a"/></g>
+    <g transform="translate(64,21) rotate(65) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#9caf88"/></g>
+    <g transform="translate(64,21) rotate(20) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#8aa47a"/></g>
+    <g transform="translate(47,16) rotate(60) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#9caf88"/></g>
+    <g transform="translate(47,16) rotate(15) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#8aa47a"/></g>
+    <g transform="translate(30,11) rotate(55) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#9caf88"/></g>
+    <g transform="translate(30,11) rotate(10) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#8aa47a"/></g>
+
+    <circle class="gold-dot" cx="90" cy="29" r="1.6" fill="#c79a5c"/>
+    <circle class="gold-dot" cx="170" cy="7" r="1.3" fill="#c79a5c"/>
+    <circle class="gold-dot" cx="10" cy="7" r="1.3" fill="#c79a5c"/>
+  </svg>
+</div>
 
 <section class="diploma" id="diploma">
   <p class="diploma-intro reveal">Da questo momento posso chiamarti così…</p>
@@ -822,6 +1028,35 @@
   </div>
 </section>
 
+<div class="section-divider reveal">
+  <svg class="laurel-svg" viewBox="0 0 180 34" aria-hidden="true">
+    <path class="stem" d="M90,29 C104,25 122,19 140,14 C152,11 162,9 170,7" stroke="#9caf88" stroke-width="1.3" stroke-linecap="round"/>
+    <path class="stem" d="M90,29 C76,25 58,19 40,14 C28,11 18,9 10,7" stroke="#9caf88" stroke-width="1.3" stroke-linecap="round"/>
+
+    <g transform="translate(100,26) rotate(-70)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#9caf88"/></g>
+    <g transform="translate(100,26) rotate(-25)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#8aa47a"/></g>
+    <g transform="translate(116,21) rotate(-65) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#9caf88"/></g>
+    <g transform="translate(116,21) rotate(-20) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#8aa47a"/></g>
+    <g transform="translate(133,16) rotate(-60) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#9caf88"/></g>
+    <g transform="translate(133,16) rotate(-15) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#8aa47a"/></g>
+    <g transform="translate(150,11) rotate(-55) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#9caf88"/></g>
+    <g transform="translate(150,11) rotate(-10) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#8aa47a"/></g>
+
+    <g transform="translate(80,26) rotate(70)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#9caf88"/></g>
+    <g transform="translate(80,26) rotate(25)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#8aa47a"/></g>
+    <g transform="translate(64,21) rotate(65) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#9caf88"/></g>
+    <g transform="translate(64,21) rotate(20) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#8aa47a"/></g>
+    <g transform="translate(47,16) rotate(60) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#9caf88"/></g>
+    <g transform="translate(47,16) rotate(15) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#8aa47a"/></g>
+    <g transform="translate(30,11) rotate(55) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#9caf88"/></g>
+    <g transform="translate(30,11) rotate(10) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#8aa47a"/></g>
+
+    <circle class="gold-dot" cx="90" cy="29" r="1.6" fill="#c79a5c"/>
+    <circle class="gold-dot" cx="170" cy="7" r="1.3" fill="#c79a5c"/>
+    <circle class="gold-dot" cx="10" cy="7" r="1.3" fill="#c79a5c"/>
+  </svg>
+</div>
+
 <section class="perche" id="perche">
   <div class="perche-eyebrow">Solo per te</div>
   <div class="perche-title">Perché oggi sono così orgoglioso di te</div>
@@ -834,6 +1069,35 @@
     <a href="#finale" class="btn-continua">Scopri la sorpresa finale <span class="arrow">↓</span></a>
   </div>
 </section>
+
+<div class="section-divider reveal">
+  <svg class="laurel-svg" viewBox="0 0 180 34" aria-hidden="true">
+    <path class="stem" d="M90,29 C104,25 122,19 140,14 C152,11 162,9 170,7" stroke="#9caf88" stroke-width="1.3" stroke-linecap="round"/>
+    <path class="stem" d="M90,29 C76,25 58,19 40,14 C28,11 18,9 10,7" stroke="#9caf88" stroke-width="1.3" stroke-linecap="round"/>
+
+    <g transform="translate(100,26) rotate(-70)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#9caf88"/></g>
+    <g transform="translate(100,26) rotate(-25)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#8aa47a"/></g>
+    <g transform="translate(116,21) rotate(-65) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#9caf88"/></g>
+    <g transform="translate(116,21) rotate(-20) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#8aa47a"/></g>
+    <g transform="translate(133,16) rotate(-60) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#9caf88"/></g>
+    <g transform="translate(133,16) rotate(-15) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#8aa47a"/></g>
+    <g transform="translate(150,11) rotate(-55) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#9caf88"/></g>
+    <g transform="translate(150,11) rotate(-10) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#8aa47a"/></g>
+
+    <g transform="translate(80,26) rotate(70)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#9caf88"/></g>
+    <g transform="translate(80,26) rotate(25)"><use href="#laurelLeaf" class="leaf" style="--d:.05s" fill="#8aa47a"/></g>
+    <g transform="translate(64,21) rotate(65) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#9caf88"/></g>
+    <g transform="translate(64,21) rotate(20) scale(.9)"><use href="#laurelLeaf" class="leaf" style="--d:.15s" fill="#8aa47a"/></g>
+    <g transform="translate(47,16) rotate(60) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#9caf88"/></g>
+    <g transform="translate(47,16) rotate(15) scale(.8)"><use href="#laurelLeaf" class="leaf" style="--d:.25s" fill="#8aa47a"/></g>
+    <g transform="translate(30,11) rotate(55) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#9caf88"/></g>
+    <g transform="translate(30,11) rotate(10) scale(.65)"><use href="#laurelLeaf" class="leaf" style="--d:.35s" fill="#8aa47a"/></g>
+
+    <circle class="gold-dot" cx="90" cy="29" r="1.6" fill="#c79a5c"/>
+    <circle class="gold-dot" cx="170" cy="7" r="1.3" fill="#c79a5c"/>
+    <circle class="gold-dot" cx="10" cy="7" r="1.3" fill="#c79a5c"/>
+  </svg>
+</div>
 
 <section class="finale" id="finale">
   <div class="finale-stage">
