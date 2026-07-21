@@ -59,9 +59,10 @@
     text-align: center;
     max-width: 84vw;
     opacity: 0;
-    transition: opacity 0.5s ease;
+    transform: translateY(8px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
   }
-  .intro-lines.show{ opacity: 1; }
+  .intro-lines.show{ opacity: 1; transform: translateY(0); }
 
   #tulipStemLine{
     stroke-dasharray: 80;
@@ -211,7 +212,7 @@
   .hero.play .here-we-go{ animation: fadeUp 1.1s var(--ease) forwards 0.35s, shimmer 6s linear infinite 1.4s; }
 
   .hero-sub{
-    margin-top: 1.8rem;
+    margin-top: 2.4rem;
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
     font-size: clamp(1.05rem, 2.4vw, 1.4rem);
@@ -250,22 +251,8 @@
   }
   .hero.play .btn-continua{ animation: fadeUp 1s ease forwards 1.85s; }
 
-  .scroll-hint{
-    position: absolute;
-    bottom: 1.6rem;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.62rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    opacity: 0;
-  }
-  .hero.play .scroll-hint{ animation: fadeUp 1s ease forwards 2.15s, bob 2.4s ease-in-out infinite 2.6s; }
-
   @keyframes fadeUp{ to{ opacity: 1; transform: translateY(0); } }
   @keyframes shimmer{ to{ background-position: -200% center; } }
-  @keyframes bob{ 0%,100%{ transform: translate(-50%,0); } 50%{ transform: translate(-50%,8px); } }
 
   /* ---------- FOTO ---------- */
   .foto-wrap{
@@ -290,7 +277,7 @@
 
   .foto-cornice{
     position: relative;
-    width: min(340px, 78vw);
+    width: min(380px, 82vw);
     aspect-ratio: 4 / 5;
     padding: 14px;
     background: linear-gradient(160deg, rgba(168,115,201,0.30), rgba(199,154,92,0.22));
@@ -755,7 +742,6 @@
   </div>
   <p class="hero-name">Dott.ssa Rosita Poliseno</p>
   <a href="#foto" class="btn-continua">Continua <span class="arrow">↓</span></a>
-  <div class="scroll-hint">Scorri ↓</div>
 </section>
 
 <section class="foto-wrap" id="foto">
@@ -783,9 +769,9 @@
       <span class="label">caffè bevuti</span>
     </div>
     <div class="stat-card reveal">
-      <span class="emoji">😴</span>
-      <span class="value">Poche</span>
-      <span class="label">ore di sonno</span>
+      <span class="emoji">🤯</span>
+      <span class="value">Innumerevoli</span>
+      <span class="label">sclerate</span>
     </div>
     <div class="stat-card reveal">
       <span class="emoji">😅</span>
@@ -826,7 +812,7 @@
       </g>
     </svg>
     <div class="conferisce">In lode al merito e alla dedizione, si conferisce il titolo di</div>
-    <div class="titolo">Doctor</div>
+    <div class="titolo">Dottoressa</div>
     <div class="nome">Rosita Poliseno</div>
     <div class="rigo"></div>
     <p class="lode">Per l'impegno di ogni giorno, la costanza nelle difficoltà e la luce che ci ha messo in ogni pagina.</p>
@@ -899,7 +885,7 @@
 
   function burstPetals(){
     if(prefersReduced) return;
-    for(let i=0; i<16; i++){
+    for(let i=0; i<22; i++){
       const p = document.createElement('div');
       p.className = 'petal burst';
       const size = 8 + Math.random()*8;
@@ -950,9 +936,9 @@
     for(const line of lines){
       introLines.textContent = line;
       introLines.classList.add('show');
-      await wait(prefersReduced ? 40 : 1250);
+      await wait(prefersReduced ? 40 : 1500);
       introLines.classList.remove('show');
-      await wait(prefersReduced ? 20 : 350);
+      await wait(prefersReduced ? 20 : 650); // tempo sufficiente perché la dissolvenza finisca del tutto
     }
   }
 
@@ -963,12 +949,11 @@
     }
     await wait(1750); // lascia sbocciare il tulipano
     await typeLines([
-      'Ehi.',
-      'Oggi tutti ti faranno i complimenti…',
-      "Io invece volevo regalarti qualcosa di un po' diverso.",
-      'Quindi… iniziamo.'
+      'Ormai quando vedi un QR pensi subito a me.',
+      "Questa volta, però, non c'è un menù da aprire.",
+      "L'ho fatto solo per te."
     ]);
-    await wait(250);
+    await wait(300);
     if(heroSection) heroSection.classList.add('play');
     introOverlay.classList.add('fade-out');
     await wait(800);
@@ -1099,6 +1084,7 @@
     finaleStarted = true;
     await wait(500);
     await typeWriter(finaleCongrats, "Congratulazioni,\nDottoressa Rosita Poliseno", prefersReduced ? 0 : 45);
+    burstPetals();
     await wait(prefersReduced ? 100 : 1100);
     finaleDedica.classList.add('show');
     await wait(prefersReduced ? 100 : 3000);
